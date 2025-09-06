@@ -1,16 +1,20 @@
 package ui
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
+var ErrCancelled = errors.New("cancelled")
+
 type TextInputModal struct {
-	input textinput.Model
-	done  bool
-	title string
+	input     textinput.Model
+	done      bool
+	cancelled bool
+	title     string
 }
 
 func NewInputModal(title, placeholder string) TextInputModal {
@@ -38,6 +42,7 @@ func (m TextInputModal) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.done = true
 			return m, tea.Quit
 		case "ctrl+c", "esc":
+			m.cancelled = true
 			return m, tea.Quit
 		}
 	}
@@ -65,5 +70,9 @@ func (m TextInputModal) Run() (string, error) {
 		return "", err
 	}
 
-	return finalModel.(TextInputModal).Value(), nil
+	fm := finalModel.(TextInputModal)
+	if fm.cancelled {
+		return "", ErrCancelled
+	}
+	return fm.Value(), nil
 }

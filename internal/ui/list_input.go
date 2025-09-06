@@ -1,15 +1,18 @@
 package ui
 
 import (
+	"fmt"
 	"iter"
+	"os"
 
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
 type ListInputModel[T list.Item] struct {
-	list   list.Model
-	choice T
+	list      list.Model
+	choice    T
+	cancelled bool
 }
 
 func NewListInputModal[T list.Item](items iter.Seq[T]) ListInputModel[T] {
@@ -21,10 +24,6 @@ func NewListInputModal[T list.Item](items iter.Seq[T]) ListInputModel[T] {
 	l := list.New(li, list.NewDefaultDelegate(), 40, 0)
 
 	return ListInputModel[T]{list: l}
-}
-
-func (m ListInputModel[T]) Choice() T {
-	return m.choice
 }
 
 func (m ListInputModel[T]) Init() tea.Cmd {
@@ -40,6 +39,7 @@ func (m ListInputModel[T]) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "ctrl+c", "esc":
+			m.cancelled = true
 			return m, tea.Quit
 		case "enter":
 			if preFilterState != list.Filtering {
@@ -59,4 +59,20 @@ func (m ListInputModel[T]) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m ListInputModel[T]) View() string {
 	return m.list.View()
+}
+
+func (m ListInputModel[T]) Run() (T, error) {
+	p := tea.NewProgram(m)
+	finalModel, err := p.Run()
+	if err != nil {
+		fmt.Println("Error running program:", err)
+		os.Exit(1)
+	}
+
+	sm := finalModel.(ListInputModel[T])
+	if sm.cancelled {
+		return sm.choice, ErrCancelled
+	}
+
+	return sm.choice, nil
 }
