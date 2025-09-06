@@ -54,6 +54,15 @@ var rootCmd = &cobra.Command{
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 	},
+	PersistentPostRunE: func(cmd *cobra.Command, args []string) error {
+		yamlBytes, err := yaml.Marshal(cfg)
+		fatal(err, "error marshaling config")
+
+		err = os.WriteFile(cfgPath, yamlBytes, 0644)
+		fatal(err, "error writing config file at %s", cfgPath)
+
+		return nil
+	},
 }
 
 func Execute() {

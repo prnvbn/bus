@@ -5,6 +5,7 @@ import (
 	"iter"
 	"os"
 
+	"github.com/prnvbn/bq/internal/bq"
 	"github.com/prnvbn/bq/internal/tfl"
 	"github.com/prnvbn/bq/internal/ui"
 	"github.com/spf13/cobra"
@@ -22,8 +23,13 @@ var addCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		c := tfl.NewClient()
 
+		var err error
 		if route == "" {
-			route = runRouteInput()
+			route, err = ui.NewInputModal(
+				"🚌 Enter Bus Route",
+				"for e.g. 135 or D7",
+			).Run()
+			fatal(err, "error running route input")
 		}
 
 		stopPoints, err := c.StopPoints(route)
@@ -31,9 +37,12 @@ var addCmd = &cobra.Command{
 
 		stopPoint := runStopSelection(stopPoints)
 
-		fmt.Printf("✅ Using route: %s\n", route)
-		fmt.Printf("✅ Using stop: %s (%s)\n", stopPoint.name, stopPoint.letter)
-		fmt.Printf("✅ Using id: %s\n", stopPoint.id)
+		cfg.Arrivals = append(cfg.Arrivals, bq.Arrival{
+			Route:     route,
+			StopPoint: stopPoint.name,
+			Letter:    stopPoint.letter,
+			TflID:     stopPoint.id,
+		})
 	},
 }
 
@@ -41,18 +50,6 @@ func init() {
 	rootCmd.AddCommand(addCmd)
 
 	addCmd.Flags().StringVarP(&route, "route", "r", "", "route name e.g. 135")
-}
-
-func runRouteInput() string {
-	m := ui.NewInputModal()
-	p := tea.NewProgram(m)
-	finalModel, err := p.Run()
-	if err != nil {
-		fmt.Println("Error running program:", err)
-		os.Exit(1)
-	}
-
-	return finalModel.(ui.TextInputModal).Value()
 }
 
 type stopItem struct {

@@ -1,21 +1,16 @@
 package bq
 
 type Config struct {
-	// map of route name to route
-	Routes map[string]Route `yaml:"-"`
+	Arrivals []Arrival `yaml:"arrivals"`
 }
 
-type Route struct {
-	// map of stop point name to stop point
-	StopPoints map[string]StopPoint `yaml:"-"`
+type Arrival struct {
+	Route     string `yaml:"route"`
+	StopPoint string `yaml:"stopPoint"`
+	Letter    string `yaml:"letter"`
+	TflID     string `yaml:"tflID"`
 }
 
-type StopPoint struct {
-	// map of stop letter to stop config
-	Letters map[string]StopConfig `yaml:"-"`
-}
-
-type StopConfig struct {
-	TflID   string `yaml:"tfl_id"`
-	UserTag string `yaml:"user_tag"`
-}
+func (a Arrival) Title() string       { return a.StopPoint }
+func (a Arrival) Description() string { return "Stop " + a.Letter }
+func (a Arrival) FilterValue() string { return a.StopPoint }
