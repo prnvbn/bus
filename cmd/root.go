@@ -52,8 +52,6 @@ var rootCmd = &cobra.Command{
 
 		return nil
 	},
-	Run: func(cmd *cobra.Command, args []string) {
-	},
 	PersistentPostRunE: func(cmd *cobra.Command, args []string) error {
 		yamlBytes, err := yaml.Marshal(cfg)
 		fatal(err, "error marshaling config")
