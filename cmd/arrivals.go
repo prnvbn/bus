@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/prnvbn/bq/internal/tfl"
-	"github.com/prnvbn/bq/internal/ui"
+	"github.com/prnvbn/bus/internal/tfl"
+	"github.com/prnvbn/bus/internal/ui"
 	"github.com/spf13/cobra"
 )
 

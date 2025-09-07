@@ -6,21 +6,21 @@ import (
 	"path/filepath"
 
 	"github.com/adrg/xdg"
-	"github.com/prnvbn/bq/internal/bq"
+	"github.com/prnvbn/bus/internal/bus"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v3"
 )
 
 var (
 	cfgPath string
-	cfg     bq.Config
+	cfg     bus.Config
 )
 
 func init() {
 	var ok bool
-	cfgPath, ok = os.LookupEnv("BQ_CONFIG_PATH")
+	cfgPath, ok = os.LookupEnv("BUS_CONFIG_PATH")
 	if !ok {
-		cfgPath = xdg.ConfigHome + "/bq/config.yaml"
+		cfgPath = xdg.ConfigHome + "/bus/config.yaml"
 	}
 }
 

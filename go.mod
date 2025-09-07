@@ -1,4 +1,4 @@
-module github.com/prnvbn/bq
+module github.com/prnvbn/bus
 
 go 1.24.4
 

@@ -4,9 +4,9 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/prnvbn/bq/internal/bq"
-	"github.com/prnvbn/bq/internal/tfl"
-	"github.com/prnvbn/bq/internal/ui"
+	"github.com/prnvbn/bus/internal/bus"
+	"github.com/prnvbn/bus/internal/tfl"
+	"github.com/prnvbn/bus/internal/ui"
 	"github.com/spf13/cobra"
 )
 
@@ -51,7 +51,7 @@ var addCmd = &cobra.Command{
 		}
 		fatal(err, "error running stop selection")
 
-		cfg.Arrivals = append(cfg.Arrivals, bq.Arrival{
+		cfg.Arrivals = append(cfg.Arrivals, bus.Arrival{
 			Route:     route,
 			StopPoint: stopPoint.name,
 			Letter:    stopPoint.letter,

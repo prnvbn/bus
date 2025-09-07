@@ -1,4 +1,4 @@
-package bq
+package bus
 
 type Config struct {
 	Arrivals []Arrival `yaml:"arrivals"`
