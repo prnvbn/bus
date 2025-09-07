@@ -4,6 +4,8 @@ A simple CLI to check London bus arrivals from the terminal.
 
 ![Screenshot](images/image.png)
 
+Track arrival information for bus routes at a given stop by running `bus add`. See the arrival times of the tracked buses by running `bus arrivals`
+
 ## Installation
 
 ### Linux or MacOS
