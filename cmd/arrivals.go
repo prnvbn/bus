@@ -14,7 +14,6 @@ var arrivalsCmd = &cobra.Command{
 	Short: "show the arrival times of the tracked buses",
 	Run: func(cmd *cobra.Command, args []string) {
 		c := tfl.NewClient()
-
 		rows := []ui.ArrivalRow{}
 
 		for _, configured := range cfg.Arrivals {
@@ -39,4 +38,6 @@ var arrivalsCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(arrivalsCmd)
+
+	arrivalsCmd.Flags().BoolP("keep-open", "k", false, "keep the arrivals display open and updating (every 5 seconds)")
 }

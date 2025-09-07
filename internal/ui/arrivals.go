@@ -2,6 +2,7 @@ package ui
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 	"time"
 
@@ -17,7 +18,7 @@ type ArrivalRow struct {
 type group struct {
 	route string
 	stop  string
-	etas  []string
+	etas  []float64
 }
 
 func RenderArrivals(rows []ArrivalRow) string {
@@ -31,12 +32,8 @@ func RenderArrivals(rows []ArrivalRow) string {
 		if _, ok := groups[key]; !ok {
 			groups[key] = &group{route: r.Route, stop: r.Stop}
 		}
-		mins := int(r.ETA.Minutes())
-		if mins < 1 {
-			groups[key].etas = append(groups[key].etas, "due")
-		} else {
-			groups[key].etas = append(groups[key].etas, fmt.Sprintf("%d", mins))
-		}
+		mins := r.ETA.Minutes()
+		groups[key].etas = append(groups[key].etas, mins)
 	}
 
 	tableStyle := lipgloss.NewStyle().
@@ -59,7 +56,17 @@ func RenderArrivals(rows []ArrivalRow) string {
 	) + "\n"
 
 	for _, g := range groups {
-		etas := strings.Join(g.etas, ", ")
+		sort.Float64s(g.etas)
+		parts := make([]string, 0, len(g.etas))
+		for _, n := range g.etas {
+			if n < 1 {
+				parts = append(parts, "due")
+			} else {
+				parts = append(parts, fmt.Sprintf("%d", int(n)))
+			}
+		}
+
+		etas := strings.Join(parts, ", ")
 		row := lipgloss.JoinHorizontal(
 			lipgloss.Left,
 			colRoute.Render(g.route),
