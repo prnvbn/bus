@@ -25,7 +25,10 @@ func init() {
 }
 
 var rootCmd = &cobra.Command{
-	Use: "bq",
+	Use:   "bus",
+	Short: "Track arrival information for bus routes at a given stop",
+	Long: `Track arrival information for bus routes at a given stop by running 'bus add'.
+See the arrival times of the tracked buses by running 'bus arrivals'`,
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 		yamlBytes, err := os.ReadFile(cfgPath)
 		if err != nil {

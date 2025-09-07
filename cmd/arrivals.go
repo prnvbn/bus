@@ -10,7 +10,8 @@ import (
 )
 
 var arrivalsCmd = &cobra.Command{
-	Use: "arrivals",
+	Use:   "arrivals",
+	Short: "show the arrival times of the tracked buses",
 	Run: func(cmd *cobra.Command, args []string) {
 		c := tfl.NewClient()
 
