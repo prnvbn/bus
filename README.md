@@ -18,6 +18,20 @@ bash -c "$(curl -fsSL https://raw.githubusercontent.com/prnvbn/bus/main/installe
 
 Move the binary to a directory in your PATH. For e.g. `/usr/local/bin` on linux.
 
+### via `homebrew`
+
+You can install `bus` using the (prnvbn/homebrew-tap)[https://github.com/prnvbn/homebrew-tap].
+
+```bash
+brew install prnvbn/tap/bus
+```
+
+### via `go install`
+
+```bash
+go install github.com/prnvbn/bus/cmd/bus@latest
+```
+
 #### Enabling Command Autocompletion
 
 To enable autocomplete, add the following to your `.bashrc` or `.bash_profile` file:
