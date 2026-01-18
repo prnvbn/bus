@@ -20,7 +20,7 @@ Move the binary to a directory in your PATH. For e.g. `/usr/local/bin` on linux.
 
 ### via `homebrew`
 
-You can install `bus` using the (prnvbn/homebrew-tap)[https://github.com/prnvbn/homebrew-tap].
+You can install `bus` using the [prnvbn/homebrew-tap](https://github.com/prnvbn/homebrew-tap).
 
 ```bash
 brew install prnvbn/tap/bus
