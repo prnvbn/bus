@@ -41,8 +41,6 @@ func (c *Client) get(route string) (*http.Response, error) {
 		req.URL.RawQuery = q.Encode()
 	}
 
-	// need to set this header to avoid cloudflare blocks
-	req.Header.Set("User-Agent", "https://github.com/prnvbn/bq")
 	req.Header.Set("Accept", "application/json")
 
 	resp, err := c.Client.Do(req)
