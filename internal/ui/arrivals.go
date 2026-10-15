@@ -3,6 +3,7 @@ package ui
 import (
 	"fmt"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 
@@ -35,6 +36,27 @@ func RenderArrivals(rows []ArrivalRow) string {
 		mins := r.ETA.Minutes()
 		groups[key].etas = append(groups[key].etas, mins)
 	}
+	ordered := make([]*group, 0, len(groups))
+	for _, g := range groups {
+		ordered = append(ordered, g)
+	}
+	sort.Slice(ordered, func(i, j int) bool {
+		a, b := ordered[i], ordered[j]
+		if a.route != b.route {
+			an, aok := routeNumber(a.route)
+			bn, bok := routeNumber(b.route)
+			switch {
+			case aok && bok && an != bn:
+				return an < bn
+			case aok && !bok:
+				return true
+			case !aok && bok:
+				return false
+			}
+			return a.route < b.route
+		}
+		return a.stop < b.stop
+	})
 
 	tableStyle := lipgloss.NewStyle().
 		Background(lipgloss.Color("0")).
@@ -55,7 +77,7 @@ func RenderArrivals(rows []ArrivalRow) string {
 		colETA.Render("Mins"),
 	) + "\n"
 
-	for _, g := range groups {
+	for _, g := range ordered {
 		sort.Float64s(g.etas)
 		parts := make([]string, 0, len(g.etas))
 		for _, n := range g.etas {
@@ -77,4 +99,20 @@ func RenderArrivals(rows []ArrivalRow) string {
 	}
 
 	return tableStyle.Render(table)
+}
+
+// routeNumber extracts a number for sorting, trying the full route before
+// stripping up to two leading ASCII letters, so "15", "D7", and "SL2" yield
+// 15, 7, and 2. It returns 0, false if none of these attempts can be parsed as an int.
+func routeNumber(route string) (int, bool) {
+	for stripped := 0; stripped <= 2; stripped++ {
+		if n, err := strconv.Atoi(route); err == nil {
+			return n, true
+		}
+		if len(route) == 0 || !((route[0] >= 'A' && route[0] <= 'Z') || (route[0] >= 'a' && route[0] <= 'z')) {
+			break
+		}
+		route = route[1:]
+	}
+	return 0, false
 }

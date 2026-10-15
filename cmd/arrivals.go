@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"sort"
 	"time"
 
 	"github.com/prnvbn/bus/internal/tfl"
@@ -32,10 +31,6 @@ var arrivalsCmd = &cobra.Command{
 				})
 			}
 		}
-		sort.Slice(rows, func(i, j int) bool {
-			return rows[i].Route < rows[j].Route
-		})
-
 		fmt.Println(ui.RenderArrivals(rows))
 	},
 }
