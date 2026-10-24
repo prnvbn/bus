@@ -4,8 +4,8 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/charmbracelet/bubbles/textinput"
-	tea "github.com/charmbracelet/bubbletea"
+	"charm.land/bubbles/v2/textinput"
+	tea "charm.land/bubbletea/v2"
 )
 
 var ErrCancelled = errors.New("cancelled")
@@ -20,7 +20,7 @@ type TextInputModal struct {
 func NewInputModal(title, placeholder string) TextInputModal {
 	ti := textinput.New()
 	ti.Placeholder = placeholder
-	ti.Width = len(ti.Placeholder) + 5
+	ti.SetWidth(len(ti.Placeholder) + 5)
 	ti.Focus()
 
 	return TextInputModal{input: ti, title: title}
@@ -36,7 +36,7 @@ func (m TextInputModal) Init() tea.Cmd {
 
 func (m TextInputModal) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
-	case tea.KeyMsg:
+	case tea.KeyPressMsg:
 		switch msg.String() {
 		case "enter":
 			m.done = true
@@ -52,15 +52,15 @@ func (m TextInputModal) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
-func (m TextInputModal) View() string {
+func (m TextInputModal) View() tea.View {
 	if m.done {
-		return ""
+		return tea.NewView("")
 	}
-	return fmt.Sprintf(
+	return tea.NewView(fmt.Sprintf(
 		"%s\n\n%s\n\n(press Enter to confirm)",
 		m.title,
 		m.input.View(),
-	)
+	))
 }
 
 func (m TextInputModal) Run() (string, error) {

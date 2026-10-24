@@ -5,8 +5,8 @@ import (
 	"iter"
 	"os"
 
-	"github.com/charmbracelet/bubbles/list"
-	tea "github.com/charmbracelet/bubbletea"
+	"charm.land/bubbles/v2/list"
+	tea "charm.land/bubbletea/v2"
 )
 
 type ListInputModel[T list.Item] struct {
@@ -27,7 +27,7 @@ func NewListInputModal[T list.Item](items iter.Seq[T]) ListInputModel[T] {
 }
 
 func (m ListInputModel[T]) Init() tea.Cmd {
-	return tea.EnterAltScreen
+	return nil
 }
 
 func (m ListInputModel[T]) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -36,7 +36,7 @@ func (m ListInputModel[T]) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	preFilterState := m.list.FilterState()
 
 	switch msg := msg.(type) {
-	case tea.KeyMsg:
+	case tea.KeyPressMsg:
 		switch msg.String() {
 		case "ctrl+c", "esc":
 			m.cancelled = true
@@ -57,8 +57,10 @@ func (m ListInputModel[T]) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
-func (m ListInputModel[T]) View() string {
-	return m.list.View()
+func (m ListInputModel[T]) View() tea.View {
+	v := tea.NewView(m.list.View())
+	v.AltScreen = true
+	return v
 }
 
 func (m ListInputModel[T]) Run() (T, error) {
