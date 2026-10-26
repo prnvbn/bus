@@ -41,6 +41,8 @@ func (c *Client) get(route string) (*http.Response, error) {
 		req.URL.RawQuery = q.Encode()
 	}
 
+	// TfL's Cloudflare protection reject Go's default User-Agent
+	req.Header.Set("User-Agent", "https://github.com/prnvbn/bus")
 	req.Header.Set("Accept", "application/json")
 
 	resp, err := c.Client.Do(req)
