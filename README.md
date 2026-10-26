@@ -65,3 +65,27 @@ go install github.com/prnvbn/bus@latest
 ### Notes
 
 - Data sourced from [TfL Unified API](https://api.tfl.gov.uk/), rate limited at 50 requests per minute
+
+## Sections
+
+Group stops by Home, Work, or any name:
+
+```bash
+bus section add Home
+bus add --route 135 --section Home
+bus arrivals --section Home
+```
+
+Once sections exist, `bus add` offers a section picker. `bus arrivals` shows all
+sections, with unassigned stops under "Other stops". Use `--section ""` to add
+or view unassigned stops. Names are case insensitive.
+
+```bash
+bus section list
+bus section rename Home "Near home"
+bus section move
+bus section remove "Near home"
+```
+
+Moving a stop is interactive. Removing a section keeps its stops unassigned
+and merges duplicates.

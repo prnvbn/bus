@@ -10,10 +10,39 @@ import (
 	"charm.land/lipgloss/v2"
 )
 
+const (
+	arrivalRouteWidth = 6
+	arrivalStopWidth  = 33
+	arrivalETAWidth   = 20
+)
+
 type ArrivalRow struct {
 	Route string
 	Stop  string
 	ETA   time.Duration
+}
+
+type ArrivalSection struct {
+	Name string
+	Rows []ArrivalRow
+}
+
+func RenderArrivalSections(sections []ArrivalSection) string {
+	title := lipgloss.NewStyle().Foreground(lipgloss.Color("#8BD5CA")).Bold(true)
+	rule := lipgloss.NewStyle().Foreground(lipgloss.Color("#6C7086"))
+	indent := lipgloss.NewStyle().PaddingLeft(4)
+	groups := make([]string, 0, len(sections))
+	for _, section := range sections {
+		width := arrivalRouteWidth + arrivalStopWidth + arrivalETAWidth
+		heading := rule.Render("── ") + title.Render(section.Name) +
+			rule.Render(" "+strings.Repeat("─", max(2, width-lipgloss.Width(section.Name)-4)))
+		body := renderArrivals(section.Rows, 0)
+		if len(section.Rows) == 0 {
+			body = indent.Render(body)
+		}
+		groups = append(groups, indent.Render(heading)+"\n"+strings.TrimRight(body, " \t\r\n"))
+	}
+	return lipgloss.NewStyle().PaddingTop(1).Render(strings.Join(groups, "\n\n"))
 }
 
 type group struct {
@@ -23,6 +52,10 @@ type group struct {
 }
 
 func RenderArrivals(rows []ArrivalRow) string {
+	return renderArrivals(rows, 1)
+}
+
+func renderArrivals(rows []ArrivalRow, paddingTop int) string {
 	if len(rows) == 0 {
 		return "No arrivals found."
 	}
@@ -59,15 +92,14 @@ func RenderArrivals(rows []ArrivalRow) string {
 	})
 
 	tableStyle := lipgloss.NewStyle().
-		Background(lipgloss.Color("0")).
 		Foreground(lipgloss.Color("#FF5F1F")).
 		Bold(true).
 		PaddingLeft(4).
-		PaddingTop(1)
+		PaddingTop(paddingTop)
 
-	colRoute := lipgloss.NewStyle().Width(6)
-	colStop := lipgloss.NewStyle().Width(33)
-	colETA := lipgloss.NewStyle().Width(20)
+	colRoute := lipgloss.NewStyle().Width(arrivalRouteWidth)
+	colStop := lipgloss.NewStyle().Width(arrivalStopWidth)
+	colETA := lipgloss.NewStyle().Width(arrivalETAWidth)
 
 	var table string
 	table += lipgloss.JoinHorizontal(

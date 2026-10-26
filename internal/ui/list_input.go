@@ -3,7 +3,6 @@ package ui
 import (
 	"fmt"
 	"iter"
-	"os"
 
 	"charm.land/bubbles/v2/list"
 	tea "charm.land/bubbletea/v2"
@@ -15,13 +14,16 @@ type ListInputModel[T list.Item] struct {
 	cancelled bool
 }
 
-func NewListInputModal[T list.Item](items iter.Seq[T]) ListInputModel[T] {
+func NewListInputModal[T list.Item](items iter.Seq[T], title ...string) ListInputModel[T] {
 	li := make([]list.Item, 0)
 	for item := range items {
 		li = append(li, item)
 	}
 
 	l := list.New(li, list.NewDefaultDelegate(), 40, 0)
+	if len(title) > 0 {
+		l.Title = title[0]
+	}
 
 	return ListInputModel[T]{list: l}
 }
@@ -45,8 +47,9 @@ func (m ListInputModel[T]) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if preFilterState != list.Filtering {
 				if item, ok := m.list.SelectedItem().(T); ok {
 					m.choice = item
+					return m, tea.Quit
 				}
-				return m, tea.Quit
+				return m, nil
 			}
 		}
 	case tea.WindowSizeMsg:
@@ -64,11 +67,15 @@ func (m ListInputModel[T]) View() tea.View {
 }
 
 func (m ListInputModel[T]) Run() (T, error) {
+	if len(m.list.Items()) == 0 {
+		var zero T
+		return zero, fmt.Errorf("no items available to select")
+	}
 	p := tea.NewProgram(m)
 	finalModel, err := p.Run()
 	if err != nil {
-		fmt.Println("Error running program:", err)
-		os.Exit(1)
+		var zero T
+		return zero, fmt.Errorf("run selection: %w", err)
 	}
 
 	sm := finalModel.(ListInputModel[T])

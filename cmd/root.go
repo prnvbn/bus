@@ -25,43 +25,36 @@ func init() {
 }
 
 var rootCmd = &cobra.Command{
-	Use:   "bus",
-	Short: "Track arrival information for bus routes at a given stop",
+	Use:          "bus",
+	SilenceUsage: true,
+	Short:        "Track arrival information for bus routes at a given stop",
 	Long: `Track arrival information for bus routes at a given stop by running 'bus add'.
 See the arrival times of the tracked buses by running 'bus arrivals'`,
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+		cfg = bus.Config{}
 		yamlBytes, err := os.ReadFile(cfgPath)
-		if err != nil {
-			if os.IsNotExist(err) {
-				err = os.MkdirAll(filepath.Dir(cfgPath), 0755)
-				fatal(err, "error creating config directory at %s", filepath.Dir(cfgPath))
-
-				f, err := os.Create(cfgPath)
-				fatal(err, "error creating config file at %s", cfgPath)
-				defer f.Close()
-
-				yamlBytes, err := yaml.Marshal(cfg)
-				fatal(err, "error marshaling config")
-
-				_, err = f.Write(yamlBytes)
-				fatal(err, "error writing config file at %s", cfgPath)
-			}
-			return err
+		if os.IsNotExist(err) {
+			return nil
 		}
-		fatal(err, "Config file %s does not exist!", cfgPath)
-
-		err = yaml.Unmarshal(yamlBytes, &cfg)
-		fatal(err, "YAML Config file at %s is malformed", cfgPath)
-
-		return nil
+		if err != nil {
+			return fmt.Errorf("read config: %w", err)
+		}
+		if err := yaml.Unmarshal(yamlBytes, &cfg); err != nil {
+			return fmt.Errorf("parse config %s: %w", cfgPath, err)
+		}
+		return cfg.ValidateSections()
 	},
 	PersistentPostRunE: func(cmd *cobra.Command, args []string) error {
 		yamlBytes, err := yaml.Marshal(cfg)
-		fatal(err, "error marshaling config")
-
-		err = os.WriteFile(cfgPath, yamlBytes, 0644)
-		fatal(err, "error writing config file at %s", cfgPath)
-
+		if err != nil {
+			return fmt.Errorf("marshal config: %w", err)
+		}
+		if err := os.MkdirAll(filepath.Dir(cfgPath), 0755); err != nil {
+			return fmt.Errorf("create config directory: %w", err)
+		}
+		if err := os.WriteFile(cfgPath, yamlBytes, 0644); err != nil {
+			return fmt.Errorf("write config: %w", err)
+		}
 		return nil
 	},
 }

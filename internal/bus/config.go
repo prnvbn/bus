@@ -2,6 +2,7 @@ package bus
 
 type Config struct {
 	Arrivals []Arrival `yaml:"arrivals"`
+	Sections []string  `yaml:"sections,omitempty"`
 }
 
 type Arrival struct {
@@ -9,6 +10,7 @@ type Arrival struct {
 	StopPoint string `yaml:"stopPoint"`
 	Letter    string `yaml:"letter"`
 	TflID     string `yaml:"tflID"`
+	Section   string `yaml:"section,omitempty"`
 }
 
 func (a Arrival) Title() string       { return a.StopPoint }
