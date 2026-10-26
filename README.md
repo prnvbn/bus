@@ -2,7 +2,7 @@
 
 A simple CLI to check London bus arrivals from the terminal.
 
-![Screenshot](images/image.png)
+![Terminal demo showing how to add a bus stop and check arrivals](demo/bus-demo.gif)
 
 Track arrival information for bus routes at a given stop by running `bus add`. See the arrival times of the tracked buses by running `bus arrivals`
 
@@ -68,24 +68,13 @@ go install github.com/prnvbn/bus@latest
 
 ## Sections
 
-Group stops by Home, Work, or any name:
+Group stops by Home, Work, or any name. Create a section with `bus section add Home`,
+then use `bus add --section Home` or choose a section in the picker.
+`bus arrivals` shows all sections; `bus arrivals --section Home` filters to one.
 
-```bash
-bus section add Home
-bus add --route 135 --section Home
-bus arrivals --section Home
-```
+![Multiple bus routes grouped into Home and Work sections](demo/sections.png)
 
-Once sections exist, `bus add` offers a section picker. `bus arrivals` shows all
-sections, with unassigned stops under "Other stops". Use `--section ""` to add
-or view unassigned stops. Names are case insensitive.
+Manage sections with `bus section list`, `bus section rename`, `bus section move`,
+and `bus section remove`. Removing a section keeps its stops unassigned.
 
-```bash
-bus section list
-bus section rename Home "Near home"
-bus section move
-bus section remove "Near home"
-```
-
-Moving a stop is interactive. Removing a section keeps its stops unassigned
-and merges duplicates.
+Demo recording instructions are in [scripts/README.md](scripts/README.md).

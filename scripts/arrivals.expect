@@ -1,0 +1,21 @@
+set timeout 30
+set stty_init "rows $env(BUS_DEMO_ROWS) columns $env(BUS_DEMO_COLS)"
+match_max -d 1000000
+
+# Capture the real CLI output before presenting the complete screenshot.
+log_user 0
+spawn -noecho env -u NO_COLOR TERM=xterm-256color COLORTERM=truecolor \
+    $env(BUS_DEMO_BIN) {*}$env(BUS_DEMO_ARGS)
+expect {
+    eof {}
+    timeout { exit 1 }
+}
+set output $expect_out(buffer)
+set result [wait]
+if {[lindex $result 2] != 0 || [lindex $result 3] != 0} {
+    send_user -- $output
+    exit 1
+}
+send_user "\033\[2J\033\[H\033\[?25l$ bus $env(BUS_DEMO_ARGS)\r\n$output"
+sleep 1
+exit 0

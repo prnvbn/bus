@@ -1,0 +1,93 @@
+set timeout 30
+set stty_init "rows $env(BUS_DEMO_ROWS) columns $env(BUS_DEMO_COLS)"
+match_max -d 1000000
+
+proc prompt {} {
+    expect {
+        -re {\$ $} {}
+        timeout { exit 1 }
+        eof { exit 1 }
+    }
+}
+
+# Drain terminal output during pauses so interactive updates retain their timing.
+proc pause {milliseconds} {
+    set until [expr {[clock milliseconds] + $milliseconds}]
+    while {[clock milliseconds] < $until} {
+        expect -timeout 0 {
+            -re {.+} {}
+            eof { exit 1 }
+        }
+        after 10
+    }
+}
+
+proc type_command {command} {
+    foreach char [split $command ""] {
+        send -- $char
+        expect {
+            -exact $char {}
+            timeout { exit 1 }
+            eof { exit 1 }
+        }
+        sleep 0.055
+    }
+    sleep 0.3
+    send "\r"
+}
+
+proc clear_screen {} {
+    send "clear\r"
+    prompt
+    sleep 0.3
+}
+
+set bin_dir [file dirname $env(BUS_DEMO_BIN)]
+spawn -noecho env -u NO_COLOR TERM=xterm-256color COLORTERM=truecolor \
+    "PATH=$bin_dir:$env(PATH)" {PS1=$ } {PROMPT_COMMAND=} \
+    bash --noprofile --norc -i
+prompt
+clear_screen
+
+type_command "bus arrivals"
+expect {
+    "Liverpool Street Station" {}
+    timeout { exit 1 }
+    eof { exit 1 }
+}
+prompt
+pause 2200
+
+type_command "bus add --route 135"
+expect {
+    "Choose a stop" {}
+    timeout { exit 1 }
+    eof { exit 1 }
+}
+pause 1800
+send "\r"
+expect {
+    "Saved route 135" {}
+    timeout { exit 1 }
+    eof { exit 1 }
+}
+prompt
+sleep 1.2
+
+type_command "bus arrivals"
+expect {
+    "Liverpool Street Station" {}
+    timeout { exit 1 }
+    eof { exit 1 }
+}
+expect {
+    "St Botolph Street" {}
+    timeout { exit 1 }
+    eof { exit 1 }
+}
+prompt
+pause 3000
+log_user 0
+send "\004"
+expect eof
+exit 0
